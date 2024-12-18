@@ -1,0 +1,17 @@
+{
+  "extends": "./.nuxt/tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "class-variance-authority": ["./node_modules/class-variance-authority"],
+      "~/*": ["./server/*"],
+      "@/*": ["./app/*"]
+    },
+    "types": ["@nuxt/image", "@pinia/nuxt", "@vueuse/nuxt","node", "googleapis"]
+  },
+
+"include": [
+    "./app/**/*",
+    "./server/**/*"
+  ]
+
+}
