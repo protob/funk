@@ -10,7 +10,7 @@ export function useEpisodeCreation() {
     description,
     transcriptionDE,
     transcriptionEN,
-    transcriptionTimestampsDE, // Add this parameter
+    transcriptionTimestampsDE, 
     metadata
   }: {
     seriesId: string;
@@ -23,7 +23,7 @@ export function useEpisodeCreation() {
     description: string;
     transcriptionDE?: string;
     transcriptionEN?: string;
-    transcriptionTimestampsDE?: any; // Add type for timestamps
+    transcriptionTimestampsDE?: any; 
     metadata: {
       categories: string[];
       tags: string[];
