@@ -36,12 +36,12 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 
-// Type-safe route pattern matching
+// routes
 const isFullWidthRoute = (route: ReturnType<typeof useRoute>) => {
-  // Check if we're on an episode detail page
+
   const isEpisodeDetail = /^\/series\/[\w-]+\/episodes\/[\w-_]+$/.test(route.path)
   
-  // Check if we're on an album page
+  // TODO
   const isAlbumPage = route.name === 'albums-id'
   
   return isEpisodeDetail || isAlbumPage
@@ -51,7 +51,7 @@ const maxWidthClass = computed(() => {
   return isFullWidthRoute(route) ? 'max-w-full' : 'max-w-6xl'
 })
 
-// Type-safe navigation handler
+
 type NavigationPage = 'forsche' | 'characters' | 'series' | 'episodes' | 'create'
 
 const handleNavigation = (page: NavigationPage) => {
