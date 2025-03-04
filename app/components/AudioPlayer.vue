@@ -120,9 +120,13 @@ import { useMediaControls, useDebounceFn } from '@vueuse/core'
 import { SkipBack, Undo, Redo, Play, Pause, Volume1, Volume2, VolumeX, Gauge } from 'lucide-vue-next'
 
 
+interface SliderComponent extends HTMLElement {
+  $el: HTMLElement;
+}
+
 const audioStore = useAudioPlayerStore()
 const audioElement = ref<HTMLMediaElement | null>(null)
-const sliderRef = ref<HTMLElement | null>(null);
+const sliderRef = ref<SliderComponent | null>(null)
 
 
 const {
@@ -131,10 +135,12 @@ const {
   duration,
   volume: mediaVolume,
   muted: mediaMuted,
-  playbackRate,
 } = useMediaControls(audioElement, {
   src: computed(() => audioStore.currentEpisode?.audioUrl || ''),
 })
+
+
+const playbackRate = ref(1)
 
 const isInternalChange = ref(false)
 const isDragging = ref(false)
@@ -216,18 +222,17 @@ const handleVolumeSliderChange = (value: number) => {
     const newVolume = value / 100
     updateVolume(newVolume)
     // TODO: Set volume in store
-   // audioStore.setVolume(newVolume)
+    // audioStore.setVolume(newVolume)
 }
-
 
 const setSpeed = (speed: number) => {
   if (audioElement.value) {
     audioElement.value.playbackRate = speed
+    playbackRate.value = speed
     audioStore.setPlaybackSpeed(speed)
     isSpeedMenuOpen.value = false
   }
 }
-
 
 const SKIP_SECONDS = 15
 const skipForward = () => {
@@ -258,10 +263,23 @@ watch(() => audioStore.currentEpisode?.audioUrl, async (newUrl) => {
   }
 }, { immediate: true })
 
+
+watch(currentTime, (newTime) => {
+  if (!isDragging.value) {
+    audioStore.updateCurrentTime(newTime)
+    
+    if (duration.value && !isInternalChange.value) {
+      isInternalChange.value = true
+      sliderValue.value = (newTime / duration.value) * 100
+      isInternalChange.value = false
+    }
+  }
+}, { immediate: false })
+
 watch(() => audioStore.currentEpisode?.isPlaying, async (newVal) => {
   if (!audioElement.value || isInternalChange.value) return
   try {
-    playing.value = newVal
+    playing.value = newVal ?? false
   } catch (error) {
     console.error('Error syncing playback state:', error)
   }
@@ -271,6 +289,11 @@ onMounted(() => {
   if (audioElement.value) {
     volumeValue.value = mediaVolume.value * 100
     playbackRate.value = audioStore.playbackSpeed
+    
+    // Initialize playback rate 
+    if (audioElement.value && audioStore.playbackSpeed) {
+      audioElement.value.playbackRate = audioStore.playbackSpeed
+    }
   }
 })
 </script>
