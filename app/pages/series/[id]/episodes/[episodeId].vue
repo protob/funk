@@ -101,10 +101,10 @@
                   template(v-if="processedDialogues.en[index]")
                     span.speaker(v-if="processedDialogues.en[index].speaker") {{ processedDialogues.en[index].speaker }}:
                     span.text {{ processedDialogues.en[index].text }}
-  </template>
+</template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 import { ArrowLeft, Play, Pause } from "lucide-vue-next";
 import { usePodcastCrud } from "@/composables/usePodcastCrud";
 import { useAudioPlayerStore } from "@/stores/audioPlayer";
@@ -175,67 +175,72 @@ const isPlaying = computed(
     audioStore.currentEpisode?.isPlaying
 );
 
-const processedDialogues = computed(() => {
-  const result = {
-    de: [] as DialogueLine[],
-    en: [] as DialogueLine[],
-  };
-
-  if (episode.value?.languageContent?.de?.dialogue) {
-    result.de = parseDialogueLines(episode.value.languageContent.de.dialogue);
-  }
-
-  if (episode.value?.languageContent?.en?.dialogue) {
-    result.en = parseDialogueLines(episode.value.languageContent.en.dialogue);
-  }
-
-  if (result.de.length && result.en.length) {
-    const alignedDialogues = alignDialoguesBySpeaker(result.de, result.en);
-    return alignedDialogues;
-  }
-
-  return result;
-});
-
 const parseDialogueLines = (text: string): DialogueLine[] => {
   if (!text) return [];
 
-  const cleanText = text.replace(/\r\n/g, "\n").trim();
-  const blocks = cleanText.split(/\n\n+/);
+  const lines = text.replace(/\r\n/g, "\n").trim().split("\n");
 
-  return blocks.map((block) => {
-    const match = block.match(/^([A-Za-z]+):(.+)$/s);
-    if (match && match[1] && match[2]) {
-      return {
-        speaker: match[1],
-        text: match[2].trim(),
-      };
-    }
-    return {
-      speaker: "",
-      text: block.trim(),
-    };
-  });
+  const initialAcc = { result: [] as DialogueLine[], speaker: "", text: "" };
+
+  const { result, speaker, text: currentText } = lines.reduce(
+    (acc, line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return acc;
+
+      const match = trimmed.match(/^(?:\[([A-Za-z0-9]+)\]:|\b([A-Za-z]+):)(.+)$/);
+      if (match) {
+        const updatedResult =
+          acc.speaker && acc.text
+            ? [...acc.result, { speaker: acc.speaker, text: acc.text.trim() }]
+            : acc.result;
+        return {
+          result: updatedResult,
+          speaker: (match[1] ?? match[2] ?? "").trim(),
+          text: (match[3] ?? "").trim(),
+        };
+      }
+      return acc.speaker
+        ? { ...acc, text: acc.text + "\n" + trimmed }
+        : { ...acc, result: [...acc.result, { speaker: "", text: trimmed }] };
+    },
+    initialAcc
+  );
+
+  return speaker && currentText
+    ? [...result, { speaker, text: currentText.trim() }]
+    : result;
 };
 
 const alignDialoguesBySpeaker = (
-  deLine: DialogueLine[],
-  enLine: DialogueLine[]
-) => {
-  const result = {
-    de: [...deLine],
-    en: [...enLine],
-  };
+  deLines: DialogueLine[],
+  enLines: DialogueLine[]
+): { de: DialogueLine[]; en: DialogueLine[] } => {
+  const maxLength = Math.max(deLines.length, enLines.length);
+  const de = [...deLines];
+  const en = [...enLines];
 
-  if (deLine.length === enLine.length) {
-    return result;
+  while (de.length < maxLength) {
+    de.push({ speaker: "", text: "" });
+  }
+  while (en.length < maxLength) {
+    en.push({ speaker: "", text: "" });
   }
 
-  return result;
+  return { de, en };
 };
 
+const processedDialogues = computed(() => {
+  const de = episode.value?.languageContent?.de?.dialogue
+    ? parseDialogueLines(episode.value.languageContent.de.dialogue)
+    : [];
+  const en = episode.value?.languageContent?.en?.dialogue
+    ? parseDialogueLines(episode.value.languageContent.en.dialogue)
+    : [];
+  return alignDialoguesBySpeaker(de, en);
+});
+
 const formatTags = (tags?: string[]): string =>
-  tags?.map((tag) => `#${tag.trim().replace(/\s+/g, "-")}`).join(", ") ?? "";
+  tags ? tags.map((tag) => `#${tag.trim().replace(/\s+/g, "-")}`).join(", ") : "";
 
 const formatDate = (dateString?: string): string =>
   dateString
@@ -248,16 +253,11 @@ const formatDate = (dateString?: string): string =>
 
 const formatEpisodeId = (id?: string): string => {
   if (!id) return "";
-
   const match = id.match(/^(ep\d+)/);
-  if (match && match[1]) {
-    return match[1].toUpperCase();
-  }
-
-  return id.toUpperCase();
+  return match?.[1] ? match[1].toUpperCase() : id.toUpperCase();
 };
 
-const handlePlayClick = async () => {
+const handlePlayClick = async (): Promise<void> => {
   if (!episode.value) return;
 
   const audioUrl =
