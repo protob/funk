@@ -33,7 +33,7 @@ export default async (): Promise<NuxtConfig> => {
   const openaiApiKey = await loadConfigValue('openaiApiKey', 'openai-api-key', 'OPENAI_API_KEY', true);
   
   return defineNuxtConfig({
-    compatibilityDate: '2025-05-07',
+    compatibilityDate: '2025-05-09',
     devtools: { enabled: true },
     devServer: {
       port: 3001,
