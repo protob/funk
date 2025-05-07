@@ -51,7 +51,8 @@ export default async (): Promise<NuxtConfig> => {
     },
     future: {compatibilityVersion: 4},
     extends: [
-      'github:monoprotium/protobiont-ui-layer'
+      // '../protobiont-ui-layer'
+       'github:monoprotium/protobiont-ui-layer'
     ],
     modules: [
       '@unocss/nuxt',

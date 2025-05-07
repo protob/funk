@@ -1,6 +1,5 @@
 <template>
   <div class="min-h-screen bg-neutral-950 text-neutral-100 font-sans pb-24">
-    <!-- Header -->
     <PrtAppHeader
       :pages="['forsche', 'characters', 'series', 'episodes', 'create']"
       @navigate="handleNavigation"
