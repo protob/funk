@@ -26,3 +26,5 @@ logs
 # Google credentials
 google.json
 credentials.json
+
+get-all.sh
