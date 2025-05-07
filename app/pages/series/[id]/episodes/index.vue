@@ -7,7 +7,7 @@
           :to="`/series/${seriesId}`" 
           class="text-neutral-400 hover:text-white mb-4 inline-flex items-center gap-2"
         )
-          ArrowLeft.w-4.h-4
+          Icon.w-4.h-4(name="lucide:arrow-left")
           span Back to Series
       
       //- Title and Info
@@ -37,7 +37,6 @@
   
   <script setup lang="ts">
   import { ref, computed } from 'vue'
-  import { ArrowLeft } from 'lucide-vue-next'
   import { usePodcastCrud } from '@/composables/usePodcastCrud'
   
   const ITEMS_PER_PAGE = 10
@@ -48,7 +47,7 @@
   interface Episode {
     id: string
     seriesId: string
-
+    // Add other episode properties if needed
   }
   
   const currentPage = ref(1)
@@ -56,30 +55,31 @@
   const loadAndProcessEpisode = async (episodeInfo: Partial<Episode>): Promise<Episode | null> => {
     try {
       const fullEpisode = await getEpisode(seriesId, episodeInfo.id!)
-      return { ...fullEpisode, seriesId }
+      return { ...fullEpisode, seriesId } // Ensure seriesId is part of the returned object
     } catch (error) {
       console.error('Failed to fetch episode:', error)
       return null
     }
   }
   
-  const { data: episodes } = await useAsyncData('episodes', async () => {
+  const { data: episodes } = await useAsyncData<Episode[]>('episodesAll', async () => { // Changed key to avoid conflict
     const series = await getSingleSeries(seriesId)
     if (!series?.episodes?.length) return []
-    const episodePromises = series.episodes.map(ep => loadAndProcessEpisode(ep))
+    const episodePromises = series.episodes.map(ep => loadAndProcessEpisode(ep as Partial<Episode>))
     return (await Promise.all(episodePromises)).filter((ep): ep is Episode => ep !== null)
   })
   
   const totalPages = computed(() => Math.ceil((episodes.value?.length ?? 0) / ITEMS_PER_PAGE))
   
   const paginatedEpisodes = computed(() => {
+    if (!episodes.value) return []
     const start = (currentPage.value - 1) * ITEMS_PER_PAGE
-    return episodes.value?.slice(start, start + ITEMS_PER_PAGE) ?? []
+    return episodes.value.slice(start, start + ITEMS_PER_PAGE)
   })
   
   const paginationInfo = computed(() => {
     const total = episodes.value?.length ?? 0
-    const from = (currentPage.value - 1) * ITEMS_PER_PAGE + 1
+    const from = total === 0 ? 0 : (currentPage.value - 1) * ITEMS_PER_PAGE + 1
     const to = Math.min(from + ITEMS_PER_PAGE - 1, total)
     return { from, to, total }
   })

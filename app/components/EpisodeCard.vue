@@ -18,7 +18,7 @@
           class='hover:scale-105'
           @click.stop='handlePlayClick'
         )
-          component.w-4.h-4(:is='isPlaying ? Pause : Play')
+          Icon.w-4.h-4(:name="isPlaying ? 'lucide:pause' : 'lucide:play'")
     
     //- Episode Info
     .flex-1.min-w-0.overflow-hidden.mr-4
@@ -34,7 +34,7 @@
   
   <script setup lang="ts">
   import { computed } from 'vue'
-  import { Play, Pause } from 'lucide-vue-next'
+  // import { Play, Pause } from 'lucide-vue-next' // Removed
   import { useAudioPlayerStore } from '@/stores/audioPlayer'
   import { useRouter } from 'vue-router'
   

@@ -39,14 +39,14 @@
             class="text-neutral-400 hover:text-white hover:underline inline-flex items-center gap-2"
           ) 
             span See All Episodes
-            ArrowRight(class="w-4 h-4")
+            Icon.w-4.h-4(name="lucide:arrow-right")
   </template>
   
   <script setup lang="ts">
-  import { ArrowRight } from 'lucide-vue-next'
+ 
   import { usePodcastCrud } from '@/composables/usePodcastCrud'
   import { useAudioPlayerStore } from '@/stores/audioPlayer'
-  import type { Series, Episode } from '@/types/podcast'
+  import type { Series, Episode } from '@/types/podcast' 
   
   const route = useRoute()
   const { getSingleSeries, getEpisode } = usePodcastCrud()

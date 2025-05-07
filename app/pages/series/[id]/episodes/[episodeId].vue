@@ -7,7 +7,7 @@
           :to="`/series/${route.params.id}/episodes`" 
           class="text-neutral-400 hover:text-white flex items-center gap-2"
         )
-          ArrowLeft(class="w-4 h-4")
+          Icon(name="lucide:arrow-left" class="w-4 h-4")
           span Back to Episodes
       
       //- Episode Header
@@ -31,7 +31,7 @@
                   class="flex items-center justify-center rounded-full bg-green-500 text-black hover:scale-105 transition-transform w-10 h-10 sm:w-8 sm:h-8"
                   @click="handlePlayClick"
                 )
-                  component(:is="isPlaying ? Pause : Play" class="w-5 h-5 sm:w-4 sm:h-4")
+                  Icon(:name="isPlaying ? 'lucide:pause' : 'lucide:play'" class="w-5 h-5 sm:w-4 sm:h-4")
             
             //- Episode Info
             .flex-1.min-w-0
@@ -105,7 +105,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { ArrowLeft, Play, Pause } from "lucide-vue-next";
+
 import { usePodcastCrud } from "@/composables/usePodcastCrud";
 import { useAudioPlayerStore } from "@/stores/audioPlayer";
 import {

@@ -12,25 +12,25 @@
       .flex.items-center.justify-center.gap-4(class="sm:gap-6")
         .flex.items-center.gap-2(class="sm:hidden")
           button(class="text-neutral-400 hover:text-neutral-200 p-2" @click="toggleMute")
-            Volume2(class="w-4 h-4" v-if="!mediaMuted && mediaVolume > 0.5")
-            Volume1(class="w-4 h-4" v-else-if="!mediaMuted && mediaVolume > 0")
-            VolumeX(class="w-4 h-4" v-else)
+            Icon.w-4.h-4(v-if="!mediaMuted && mediaVolume > 0.5" name="lucide:volume-2")
+            Icon.w-4.h-4(v-else-if="!mediaMuted && mediaVolume > 0" name="lucide:volume-1")
+            Icon.w-4.h-4(v-else name="lucide:volume-x")
             
           button.p-2(class="text-neutral-400 hover:text-neutral-200" @click="isSpeedMenuOpen = !isSpeedMenuOpen")
-            Gauge(class="w-4 h-4")
+            Icon.w-4.h-4(name="lucide:gauge-circle")
         button.text-neutral-400.transition-colors.p-2(class="hover:text-neutral-300" @click="goToStart")
-          SkipBack(class="w-4 h-4")
+          Icon.w-4.h-4(name="lucide:skip-back")
         button.text-neutral-400.transition-colors.p-2(class="hover:text-neutral-300" @click="skipBackward")
-          Undo(class="w-4 h-4")
+          Icon.w-4.h-4(name="lucide:undo-2")
         button.flex.items-center.justify-center.w-8.h-8.rounded-full.transition-colors(
           class="hover:bg-neutral-700"
           @click="togglePlay"
           :class="{'bg-neutral-800': !playing, 'bg-neutral-700': playing}"
         )
-          Play(class="w-4 h-4 text-neutral-200 ml-0.5" v-if="!playing")
-          Pause(class="w-4 h-4 text-neutral-200" v-else)
+          Icon.w-4.h-4.text-neutral-200(class="ml-0.5" v-if="!playing" name="lucide:play")
+          Icon.w-4.h-4.text-neutral-200(v-else name="lucide:pause")
         button.text-neutral-400.transition-colors.p-2(class="hover:text-neutral-300" @click="skipForward")
-          Redo(class="w-4 h-4")
+          Icon.w-4.h-4(name="lucide:redo-2")
 
       .flex.items-center.gap-2.w-full.px-2
         span(class="text-[11px] text-neutral-400 font-mono min-w-[48px] text-right") {{ formatTime(currentTime) }}
@@ -58,7 +58,7 @@
           class="text-neutral-400 hover:text-neutral-200"
           @click="isSpeedMenuOpen = !isSpeedMenuOpen"
         )
-          Gauge(class="w-4 h-4")
+          Icon.w-4.h-4(name="lucide:gauge-circle")
           span.text-xs {{ audioStore.playbackSpeed }}x
 
 
@@ -79,9 +79,9 @@
             ) {{ speed }}x
 
       button(class="text-neutral-400 hover:text-neutral-200" @click="toggleMute")
-        Volume2(class="w-5 h-5" v-if="!mediaMuted && mediaVolume > 0.5")
-        Volume1(class="w-5 h-5" v-else-if="!mediaMuted && mediaVolume > 0")
-        VolumeX(class="w-5 h-5" v-else)
+        Icon.w-5.h-5(v-if="!mediaMuted && mediaVolume > 0.5" name="lucide:volume-2")
+        Icon.w-5.h-5(v-else-if="!mediaMuted && mediaVolume > 0" name="lucide:volume-1")
+        Icon.w-5.h-5(v-else name="lucide:volume-x")
       .relative.w-24
         PrtSlider(
           v-model="volumeValue"
@@ -117,7 +117,6 @@
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useAudioPlayerStore } from '@/stores/audioPlayer'
 import { useMediaControls, useDebounceFn } from '@vueuse/core'
-import { SkipBack, Undo, Redo, Play, Pause, Volume1, Volume2, VolumeX, Gauge } from 'lucide-vue-next'
 
 
 interface SliderComponent extends HTMLElement {
